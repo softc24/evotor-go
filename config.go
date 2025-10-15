@@ -8,3 +8,10 @@ type Config struct {
 
 	Client *http.Client
 }
+
+type PublisherConfig struct {
+	BaseURL string
+	Token   string
+
+	Client *http.Client
+}

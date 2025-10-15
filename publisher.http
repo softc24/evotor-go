@@ -1,0 +1,6 @@
+@baseUrl=https://api.evotor.ru/api
+@publisherToken={{$dotenv PUBLISHER_TOKEN}}
+
+###
+GET {{baseUrl}}/apps/e0f6dbdf-3150-40f9-869f-a4efdc20242d/events?limit=100&since=1760438963821&type=Product HTTP/1.1
+Authorization: Bearer {{publisherToken}}
