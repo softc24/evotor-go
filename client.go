@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"net/url"
 
 	"github.com/capcom6/go-restkit"
 )
@@ -39,10 +40,11 @@ func (c *Client) GetDevices(ctx context.Context, token string) (iter.Seq[Device]
 		"Accept":        "application/json",
 	}
 	res := new(pagedResponse[Device])
+	params := url.Values{}
 
 	return func(yield func(Device) bool) {
 			for {
-				if err = c.Do(ctx, "GET", "/devices", headers, nil, res); err != nil {
+				if err = c.Do(ctx, "GET", "/devices?"+params.Encode(), headers, nil, res); err != nil {
 					return
 				}
 
@@ -53,7 +55,7 @@ func (c *Client) GetDevices(ctx context.Context, token string) (iter.Seq[Device]
 				}
 
 				if res.HasNext() {
-					headers["cursor"] = res.Paging.NextCursor
+					params.Set("cursor", res.Paging.NextCursor)
 				} else {
 					return
 				}
