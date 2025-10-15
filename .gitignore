@@ -127,6 +127,7 @@ $RECYCLE.BIN/
 
 go.work*
 coverage.*
+benchmark.*
 
 tmp/
 dist/
