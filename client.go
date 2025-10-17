@@ -13,17 +13,22 @@ type Client struct {
 	*restkit.Client
 }
 
-func NewClient(cfg Config) *Client {
+func NewClient(cfg Config) (*Client, error) {
 	if cfg.BaseURL == "" {
 		cfg.BaseURL = DefaultURL
 	}
 
-	return &Client{
-		Client: restkit.NewClient(restkit.Config{
-			Client:  cfg.Client,
-			BaseURL: cfg.BaseURL,
-		}),
+	rest, err := restkit.NewClient(restkit.Config{
+		Client:  cfg.Client,
+		BaseURL: cfg.BaseURL,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
+
+	return &Client{
+		Client: rest,
+	}, nil
 }
 
 // GetDevices returns a sequence of devices and a function to check for errors.
