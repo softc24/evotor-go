@@ -7,7 +7,7 @@ import (
 	"net/url"
 
 	"github.com/capcom6/go-restkit"
-	"github.com/softc24/evotor-go"
+	"github.com/softc24/evotor-go/helpers"
 )
 
 type Client struct {
@@ -40,33 +40,17 @@ func NewClient(cfg ClientConfig) (*Client, error) {
 // If an error occurs while loading the devices, the error function will
 // return the error.
 func (c *Client) GetDevices(ctx context.Context, token string) (iter.Seq[Device], func() error) {
-	var err error
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 		"Accept":        "application/json",
 	}
-	res := new(evotor.PagedResponse[Device])
 	params := url.Values{}
 
-	return func(yield func(Device) bool) {
-			for {
-				if err = c.Do(ctx, "GET", "/devices?"+params.Encode(), headers, nil, res); err != nil {
-					return
-				}
-
-				for _, device := range res.Items {
-					if !yield(device) {
-						return
-					}
-				}
-
-				if res.HasNext() {
-					params.Set("cursor", res.Paging.NextCursor)
-				} else {
-					return
-				}
-			}
-		}, func() error {
-			return fmt.Errorf("failed to load devices: %w", err)
-		}
+	return helpers.GetPagedData[Device](
+		ctx,
+		c.Client,
+		"/devices",
+		params,
+		headers,
+	)
 }
