@@ -1,4 +1,4 @@
-package evotor
+package publisher
 
 import (
 	"context"
@@ -7,15 +7,17 @@ import (
 	"strings"
 
 	"github.com/capcom6/go-restkit"
+	"github.com/softc24/evotor-go"
+	"github.com/softc24/evotor-go/helpers"
 )
 
-type Publisher struct {
+type Client struct {
 	*restkit.Client
 
 	headers map[string]string
 }
 
-func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
+func NewClient(cfg ClientConfig) (*Client, error) {
 	if cfg.BaseURL == "" {
 		cfg.BaseURL = DefaultURL
 	}
@@ -28,17 +30,17 @@ func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
 		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
 
-	return &Publisher{
+	return &Client{
 		Client: rest,
 		headers: map[string]string{
 			"Authorization": "Bearer " + cfg.Token,
-			"User-Agent":    "go-evotor/dev",
+			"User-Agent":    "evotor-go/dev",
 			"Accept":        "application/vnd.evotor.v2+json",
 		},
 	}, nil
 }
 
-func (p *Publisher) GetEvents(
+func (p *Client) GetEvents(
 	ctx context.Context,
 	appID string,
 	eventTypes []EventType,
@@ -46,16 +48,9 @@ func (p *Publisher) GetEvents(
 ) (iter.Seq[Event[any]], func() error) {
 	// Validate event types
 	if len(eventTypes) == 0 {
-		return func(_ func(Event[any]) bool) {}, func() error {
-			return fmt.Errorf("%w: no event types specified", ErrBadRequest)
-		}
-	}
-	for _, eventType := range eventTypes {
-		if !isValidEventType(eventType) {
-			return func(_ func(Event[any]) bool) {}, func() error {
-				return fmt.Errorf("%w: invalid event type: %s", ErrBadRequest, eventType)
-			}
-		}
+		return helpers.EmptyIter[Event[any]](), helpers.ErrorFunc(
+			fmt.Errorf("%w: no event types specified", evotor.ErrBadRequest),
+		)
 	}
 
 	// Apply options
@@ -75,7 +70,7 @@ func (p *Publisher) GetEvents(
 	var err error
 	return func(yield func(Event[any]) bool) {
 			for {
-				res := new(pagedResponse[Event[any]])
+				res := new(evotor.PagedResponse[Event[any]])
 
 				if err = p.Do(ctx, "GET", fmt.Sprintf("/api/apps/%s/events?%s", appID, params.Encode()), p.headers, nil, res); err != nil {
 					return
@@ -100,14 +95,4 @@ func (p *Publisher) GetEvents(
 
 			return fmt.Errorf("failed to get events: %w", err)
 		}
-}
-
-// Helper function to validate event type.
-func isValidEventType(eventType EventType) bool {
-	switch eventType {
-	case EventTypeDocument, EventTypeProduct, EventTypeProductGroup, EventTypeSettings, EventTypeMarketplacePurchase:
-		return true
-	default:
-		return false
-	}
 }

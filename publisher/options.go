@@ -1,4 +1,4 @@
-package evotor
+package publisher
 
 import (
 	"net/url"

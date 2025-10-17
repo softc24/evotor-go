@@ -1,4 +1,4 @@
-package evotor
+package cloud
 
 import (
 	"context"
@@ -7,13 +7,14 @@ import (
 	"net/url"
 
 	"github.com/capcom6/go-restkit"
+	"github.com/softc24/evotor-go"
 )
 
 type Client struct {
 	*restkit.Client
 }
 
-func NewClient(cfg Config) (*Client, error) {
+func NewClient(cfg ClientConfig) (*Client, error) {
 	if cfg.BaseURL == "" {
 		cfg.BaseURL = DefaultURL
 	}
@@ -44,7 +45,7 @@ func (c *Client) GetDevices(ctx context.Context, token string) (iter.Seq[Device]
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 		"Accept":        "application/json",
 	}
-	res := new(pagedResponse[Device])
+	res := new(evotor.PagedResponse[Device])
 	params := url.Values{}
 
 	return func(yield func(Device) bool) {
