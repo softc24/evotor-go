@@ -2,12 +2,13 @@ package publisher
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"iter"
+	"net/url"
 	"strings"
 
 	"github.com/capcom6/go-restkit"
-	"github.com/softc24/evotor-go"
 	"github.com/softc24/evotor-go/helpers"
 )
 
@@ -45,14 +46,7 @@ func (p *Client) GetEvents(
 	appID string,
 	eventTypes []EventType,
 	opts ...GetEventsOption,
-) (iter.Seq[Event[any]], func() error) {
-	// Validate event types
-	if len(eventTypes) == 0 {
-		return helpers.EmptyIter[Event[any]](), helpers.ErrorFunc(
-			fmt.Errorf("%w: no event types specified", evotor.ErrBadRequest),
-		)
-	}
-
+) (iter.Seq[Event[json.RawMessage]], func() error) {
 	// Apply options
 	options := new(getEventsOptions)
 	options.apply(opts...)
@@ -60,17 +54,19 @@ func (p *Client) GetEvents(
 	// Build query parameters
 	params := options.toQuery()
 
-	// Join valid event types with commas
-	typeStrings := make([]string, len(eventTypes))
-	for i, eventType := range eventTypes {
-		typeStrings[i] = string(eventType)
+	// Join event types with commas
+	if len(eventTypes) > 0 {
+		vals := make([]string, 0, len(eventTypes))
+		for _, t := range eventTypes {
+			vals = append(vals, string(t))
+		}
+		params.Add("type", strings.Join(vals, ","))
 	}
-	params.Add("type", strings.Join(typeStrings, ","))
 
-	return helpers.GetPagedData[Event[any]](
+	return helpers.GetPagedData[Event[json.RawMessage]](
 		ctx,
 		p.Client,
-		fmt.Sprintf("/api/apps/%s/events", appID),
+		fmt.Sprintf("/api/apps/%s/events", url.PathEscape(appID)),
 		params,
 		p.headers,
 	)

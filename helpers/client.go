@@ -27,8 +27,8 @@ func GetPagedData[T any](
 					return
 				}
 
-				for _, event := range res.Items {
-					if !yield(event) {
+				for _, item := range res.Items {
+					if !yield(item) {
 						return
 					}
 				}
