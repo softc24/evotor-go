@@ -3,11 +3,17 @@ package publisher
 type EventType string
 
 const (
+	EventTypeStore               EventType = "Store"
+	EventTypeDevice              EventType = "Device"
 	EventTypeDocument            EventType = "Document"
 	EventTypeProduct             EventType = "Product"
+	EventTypeOrder               EventType = "Order"
+	EventTypeGoMarketOrder       EventType = "GoMarketOrder"
 	EventTypeProductGroup        EventType = "ProductGroup"
-	EventTypeSettings            EventType = "Settings"
+	EventTypeProductImage        EventType = "ProductImage"
 	EventTypeMarketplacePurchase EventType = "MarketplacePurchase"
+	EventTypeSettings            EventType = "Settings"
+	EventTypeToken               EventType = "Token"
 )
 
 type EventSource string
