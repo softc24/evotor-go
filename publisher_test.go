@@ -15,7 +15,7 @@ func TestPublisher_GetEvents(t *testing.T) {
 		t.Skip("PUBLISHER_TOKEN is not set")
 	}
 
-	client := evotor.NewPublisher(evotor.PublisherConfig{
+	client, _ := evotor.NewPublisher(evotor.PublisherConfig{
 		BaseURL: evotor.DefaultURL,
 		Token:   token,
 	})

@@ -15,18 +15,27 @@ type Publisher struct {
 	headers map[string]string
 }
 
-func NewPublisher(cfg PublisherConfig) *Publisher {
+func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
+	if cfg.BaseURL == "" {
+		cfg.BaseURL = DefaultURL
+	}
+
+	rest, err := restkit.NewClient(restkit.Config{
+		Client:  cfg.Client,
+		BaseURL: cfg.BaseURL,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create client: %w", err)
+	}
+
 	return &Publisher{
-		Client: restkit.NewClient(restkit.Config{
-			Client:  cfg.Client,
-			BaseURL: cfg.BaseURL,
-		}),
+		Client: rest,
 		headers: map[string]string{
 			"Authorization": "Bearer " + cfg.Token,
 			"User-Agent":    "go-evotor/dev",
 			"Accept":        "application/vnd.evotor.v2+json",
 		},
-	}
+	}, nil
 }
 
 func (p *Publisher) GetEvents(
