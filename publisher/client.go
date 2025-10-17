@@ -67,32 +67,11 @@ func (p *Client) GetEvents(
 	}
 	params.Add("type", strings.Join(typeStrings, ","))
 
-	var err error
-	return func(yield func(Event[any]) bool) {
-			for {
-				res := new(evotor.PagedResponse[Event[any]])
-
-				if err = p.Do(ctx, "GET", fmt.Sprintf("/api/apps/%s/events?%s", appID, params.Encode()), p.headers, nil, res); err != nil {
-					return
-				}
-
-				for _, event := range res.Items {
-					if !yield(event) {
-						return
-					}
-				}
-
-				if res.HasNext() {
-					params.Set("cursor", res.Paging.NextCursor)
-				} else {
-					return
-				}
-			}
-		}, func() error {
-			if err == nil {
-				return nil
-			}
-
-			return fmt.Errorf("failed to get events: %w", err)
-		}
+	return helpers.GetPagedData[Event[any]](
+		ctx,
+		p.Client,
+		fmt.Sprintf("/api/apps/%s/events", appID),
+		params,
+		p.headers,
+	)
 }

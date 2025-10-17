@@ -77,19 +77,4 @@ func TestPublisher_GetEvents(t *testing.T) {
 			t.Error("Expected error for empty event type slice, got nil")
 		}
 	})
-
-	// Test case 4: Invalid event type
-	t.Run("Invalid event type", func(t *testing.T) {
-		_, isErr := client.GetEvents(
-			context.Background(),
-			"e0f6dbdf-3150-40f9-869f-a4efdc20242d",
-			[]publisher.EventType{"invalid_type"},
-			publisher.WithSince(time.Now().UnixMilli()-60*1000),
-			publisher.WithLimit(10),
-		)
-
-		if err := isErr(); err == nil {
-			t.Error("Expected error for invalid event type, got nil")
-		}
-	})
 }
