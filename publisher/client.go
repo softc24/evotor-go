@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"iter"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -15,7 +16,7 @@ import (
 type Client struct {
 	*restkit.Client
 
-	headers map[string]string
+	headers http.Header
 }
 
 func NewClient(cfg ClientConfig) (*Client, error) {
@@ -33,10 +34,11 @@ func NewClient(cfg ClientConfig) (*Client, error) {
 
 	return &Client{
 		Client: rest,
-		headers: map[string]string{
-			"Authorization": "Bearer " + cfg.Token,
-			"User-Agent":    "evotor-go/dev",
-			"Accept":        "application/vnd.evotor.v2+json",
+
+		headers: http.Header{
+			"Authorization": []string{"Bearer " + cfg.Token},
+			"User-Agent":    []string{"evotor-go/dev"},
+			"Accept":        []string{"application/vnd.evotor.v2+json"},
 		},
 	}, nil
 }

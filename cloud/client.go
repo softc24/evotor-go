@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"net/http"
 	"net/url"
 
 	"github.com/capcom6/go-restkit"
@@ -40,9 +41,9 @@ func NewClient(cfg ClientConfig) (*Client, error) {
 // If an error occurs while loading the devices, the error function will
 // return the error.
 func (c *Client) GetDevices(ctx context.Context, token string) (iter.Seq[Device], func() error) {
-	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %s", token),
-		"Accept":        "application/json",
+	headers := http.Header{
+		"Authorization": []string{"Bearer " + token},
+		"Accept":        []string{"application/json"},
 	}
 	params := url.Values{}
 
