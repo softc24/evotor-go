@@ -16,7 +16,7 @@ func GetPagedData[T any](
 	client *restkit.Client,
 	path string,
 	params url.Values,
-	headers map[string]string,
+	headers http.Header,
 ) (iter.Seq[T], func() error) {
 	var err error
 	return func(yield func(T) bool) {
