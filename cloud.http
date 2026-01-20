@@ -1,0 +1,7 @@
+@baseUrl=https://api.evotor.ru
+@token={{$dotenv CLOUD_TOKEN}}
+@storeId={{$dotenv CLOUD_STORE_ID}}
+
+###
+GET {{baseUrl}}/stores/{{storeId}}/documents?type=SELL HTTP/1.1
+Authorization: Bearer {{token}}
