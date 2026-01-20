@@ -23,7 +23,14 @@ func GetPagedData[T any](
 			for {
 				res := new(evotor.PagedResponse[T])
 
-				if err = client.Do(ctx, http.MethodGet, fmt.Sprintf("%s?%s", path, params.Encode()), headers, nil, res); err != nil {
+				if err = client.Do(
+					ctx,
+					http.MethodGet,
+					fmt.Sprintf("%s?%s", path, params.Encode()),
+					headers,
+					nil,
+					res,
+				); err != nil {
 					return
 				}
 
